@@ -1,0 +1,164 @@
+﻿
+@{
+    ViewBag.Title = "主页";
+}
+
+<div style="padding-top:50px;width:700px; margin:auto;">
+
+    <div class="row">
+        <div class="col-md-12">
+            <form class="form-horizontal">
+                <div class="form-group col-md-12">
+                    <div class="col-md-4">
+                        <label>课程分类</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="name1" class="form-control">
+                            <option value="C类">C培训</option>
+                            <option value="D类">D分享</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group col-md-12">
+                    <div class="col-md-4">
+                        <label>课程名称</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" value="" name="name2" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group col-md-12">
+                    <div class="col-md-4">
+                        <label>授课方式</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select name="name3" class="form-control">
+                            <option>0001 课堂</option>
+                            <option>0002 内部文件学习</option>
+                            <option>0003 拓展</option>
+                            <option>0004 网络在线</option>
+                            <option>0005 现场/实操</option>
+                            <option>0006 继续教育</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group col-md-12">
+                    <div class="col-md-4">
+                        <label>课程起始日期</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" value="" name="name4" style="height:34px;" class="form-control Wdate" onfocus="WdatePicker({ startDate: '%y-%M-%d', dateFmt: 'yyyy-MM-dd'})" />
+                    </div>
+                </div>
+
+                <div class="form-group col-md-12">
+                    <div class="col-md-4">
+                        <label>课程结束日期</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" value="" name="name5" style="height:34px;" class="form-control Wdate" onfocus="WdatePicker({ startDate: '%y-%M-%d', dateFmt: 'yyyy-MM-dd' })" />
+                    </div>
+                </div>
+
+                <div class="form-group col-md-12">
+                    <div class="col-md-4">
+                        <label>培训时间（小时）</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" value="0" name="name6" class="form-control" onblur="judgeNumber()" />
+                    </div>
+                </div>
+
+                <div class="form-group col-md-12">
+                    <div class="col-md-4">
+                        <label>内部/外部培训师1 姓名-编号</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" value="" name="name7" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group col-md-12">
+                    <div class="col-md-4">
+                        <label>内部/外部培训师2 姓名-编号</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" value="" name="name8" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group col-md-12 text-center">
+                    <input type="button" class="btn btn-lg btn-success" value="生成二维码" onclick="BuildQRCode()" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document" style="top:50px; ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">二维码</h4>
+            </div>
+            <div class="modal-body" style="text-align:center;min-height:400px; vertical-align:middle;">
+                <p>
+                    <img id="imgqrcode"  />
+                </p>
+                <p>
+                    <a id="aqrcode" target="_blank" href="#">下载二维码</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+            $("[name='name4']").val(new Date().format("yyyy-MM-dd"));
+            $("[name='name5']").val(new Date().format("yyyy-MM-dd"));
+
+        });
+        function BuildQRCode() {
+            $.post('@Url.Action("BuildQRCode", "Home")', $("form").serialize(), function (data) {
+                if (data.success) {
+                    $("#imgqrcode").attr('src', data.imagename);
+                    $("#aqrcode").attr('href', data.imagename);
+                    $("#myModal").modal();
+                } else {
+                    alert(data.errorMsg);
+                }
+            });
+        }
+
+        function judgeNumber() {
+            $("[name='name6']").val($("[name='name6']").val().replace(/[^\d\.]/g, ''));
+            $("[name='name6']").val(parseFloat($("[name='name6']").val()).toFixed(2));
+        }
+
+        Date.prototype.format = function (format) {
+            var o = {
+                "M+": this.getMonth() + 1, //month
+                "d+": this.getDate(), //day
+                "h+": this.getHours(), //hour
+                "m+": this.getMinutes(), //minute
+                "s+": this.getSeconds(), //second
+                "q+": Math.floor((this.getMonth() + 3) / 3), //quarter
+                "S": this.getMilliseconds() //millisecond
+            }
+            if (/(y+)/.test(format)) format = format.replace(RegExp.$1,
+            (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+            for (var k in o) if (new RegExp("(" + k + ")").test(format))
+                format = format.replace(RegExp.$1,
+                RegExp.$1.length == 1 ? o[k] :
+                ("00" + o[k]).substr(("" + o[k]).length));
+            return format;
+        }
+    </script>
+}
